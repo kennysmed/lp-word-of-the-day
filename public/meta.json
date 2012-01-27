@@ -1,0 +1,6 @@
+{
+  "name":"Word of the Day",
+  "description":"The ideal commuting companion! Select a difficulty level to give your brain a workout.",
+  "delivered_every":"day",
+  "content_type":"push"
+}
