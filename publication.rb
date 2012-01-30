@@ -6,6 +6,26 @@ get '/admin' do
   erb :admin
 end
 
+get '/test' do
+  require './word_of_the_day'
+  @wotd = WordOfTheDay.new
+  puts render_html
+end
+
+post '/validate_config' do
+  content_type :json
+  response = {}
+  response[:errors] = []
+  response[:valid] = true
+  response.to_json
+end
+
+get '/sample' do
+  @word = "ubiqitous"
+  @definition = "Being or seeming to be everywhere at the same time."
+  erb :word_of_the_day
+end
+
 #TODO::AB POKE ME WITH YOUR CRON JOB
 #TODO::AB REMOVE REFS TO LOCAL HOST
 def check_words
@@ -20,21 +40,6 @@ def render_html
   bind_me = BindMe.new(@wotd.current_word, @wotd.current_definition)
   rhtml = ERB.new(File.read('views/word_of_the_day.erb'))
   rhtml.result(bind_me.get_binding)
-end
-
-get '/test' do
-  require './word_of_the_day'
-  @wotd = WordOfTheDay.new
-  puts render_html
-end
-
-
-post '/validate_config' do
-  content_type :json
-  response = {}
-  response[:errors] = []
-  response[:valid] = true
-  response.to_json
 end
 
 class BindMe
