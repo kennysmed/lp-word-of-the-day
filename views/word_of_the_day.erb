@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Word of the Day</title>
+  <style type="text/css" media="screen">
+	body {
+		font-family: sans-serif;
+		font-size:24px;
+		width: 344px;
+	}
+
+	#word-of-the-day {
+		text-align:center;
+		font-size:16px;
+	}
+
+	.title-style-1 {
+		text-transform:uppercase;
+	
+	}
+
+	.title-style-1 div:first-child {
+		font-size: 32px;
+		font-weight:bold;
+	}
+
+	#word {
+		border:7px white;
+		display: inline-block;
+		color: white;
+		background: black;
+		padding: 5px 10px;
+		border:2px solid white;
+		font-weight:bold;
+	}
+	.word-wrap {
+		padding:2px;
+		display: inline-block;
+		background:black;
+	}
+	.word-wrap-wrap {
+		padding-right:5px;
+		padding-bottom:5px;
+		margin-right:-7px;
+		display:inline-block;
+		background-image: url(../images/stripes.png);
+		background-position: right;
+	}
+
+	.word-wrap-wrap-wrap {
+		border-top: 1px black solid;
+		padding-top: 10px;
+		margin-top: 10px;
+		display:inline-block;
+		padding-right:-5px;
+	}
+	#definition, #word {
+		font-size:22px;
+	}
+	#definition {
+		margin-top:10px;
+	}
+  </style>
+</head>
+<body>
+
+  <div id="container">
+    <header>
+
+    </header>
+    <div id="main" role="main">
+			
+			<!-- WORD OF THE DAY PUB -->
+			<div id="word-of-the-day" class="publication">
+				<div class="title title-style-1">
+					<div>WORD</div>
+					<div>OF THE DAY</div>
+				</div>
+				<span class="word-wrap-wrap-wrap">
+					<span class="word-wrap-wrap">
+						<span class="word-wrap">
+							<span id="word">
+								<%= @word.capitalize %>
+							</span>
+						</span>
+					</span>
+				</span>
+				<div id="definition">
+					<%= @definition%>
+				</div>
+			</div>
+    </div>
+    <footer>
+
+    </footer>
+  </div> <!--! end of #container -->
+</body>
+</html>
