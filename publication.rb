@@ -12,7 +12,7 @@ get '/test' do
   puts render_html
 end
 
-post '/validate_config' do
+post '/validate_config/' do
   content_type :json
   response = {}
   response[:errors] = []
@@ -20,9 +20,10 @@ post '/validate_config' do
   response.to_json
 end
 
-get '/sample' do
-  @word = "ubiqitous"
-  @definition = "Being or seeming to be everywhere at the same time."
+get '/sample/' do
+  require './word_of_the_day'
+  @word = WordOfTheDay::SAMPLE_DATA[:word]
+  @definition = WordOfTheDay::SAMPLE_DATA[:definition]
   erb :word_of_the_day
 end
 
