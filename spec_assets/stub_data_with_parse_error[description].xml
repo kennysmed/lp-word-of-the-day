@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+<atom:link href="http://wordsmith.org/awad/rss1.xml" rel="self" type="application/rss+xml" />
+
+<title>Wordsmith.org: Today's Word</title> 
+<link>http://wordsmith.org/</link> 
+<copyright>Copyright 1994-2011 Wordsmith.org</copyright> 
+<description>The magic of words - that's what Wordsmith.org is about.</description>
+<language>en-us</language> 
+<ttl>1440</ttl> 
+
+<item>
+<title>junoesque</title>
+<link>http://wordsmith.org/words/junoesque.html</link>
+<desction>Having a stately bearing and regal beauty; statuesque.</desption>
+</item>
+
+</channel>
+</rss>

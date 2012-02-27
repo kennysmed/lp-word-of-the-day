@@ -2,16 +2,6 @@ require 'sinatra'
 require 'json'
 require 'rest-client'
 
-get '/admin' do
-  erb :admin
-end
-
-get '/test' do
-  require './word_of_the_day'
-  @wotd = WordOfTheDay.new
-  puts render_html
-end
-
 post '/validate_config/' do
   content_type :json
   response = {}
@@ -29,12 +19,30 @@ end
 
 #TODO::AB POKE ME WITH YOUR CRON JOB
 #TODO::AB REMOVE REFS TO LOCAL HOST
-def check_words
+def cronable
   require './word_of_the_day'
   @wotd = WordOfTheDay.new
-  if @wotd.word_changed?
-    RestClient.post("http://localhost:3000/api/v1/publications/renders", :config => params["config"], :html => render_html, :developer_key => '5f772202c244e5ecc5ac7b7554da1096', :endpoint => 'http://localhost:9292/')
+  
+  
+  success = false
+  tries = 0
+   
+  while !success && tries < 3
+    tries +=1
+    begin
+      result = @wotd.word_changed?
+      if result
+        RestClient.post("http://localhost:3000/api/v1/publications/renders", :config => {}, :html => render_html, :developer_key => '5f772202c244e5ecc5ac7b7554da1096', :endpoint => 'http://localhost:9292/')
+      end
+      success = true
+    rescue PermanentError => e
+      # Parse problem. Not going to go away. Do someting #TODO AB Make this error notify by email or something
+      raise NotableError, 'caught a parse error 3 times. Last error message: '+ e.message if tries == 3
+    rescue NetworkError
+      # Network error. Do nothing.
+    end
   end
+  return result
 end
 
 def render_html
