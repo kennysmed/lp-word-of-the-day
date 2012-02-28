@@ -32,7 +32,7 @@ def cronable
     begin
       result = @wotd.word_changed?
       if result
-        RestClient.post("http://localhost:3000/api/v1/publications/renders", :config => {}, :html => render_html, :developer_key => '5f772202c244e5ecc5ac7b7554da1096', :endpoint => 'http://localhost:9292/')
+        RestClient.post("htt", :config => {}, :html => render_html, :developer_key => '5f772202c244e5ecc5ac7b7554da1096', :endpoint => 'http://empty-stream-2306.herokuapp.com/')
       end
       success = true
     rescue PermanentError => e
