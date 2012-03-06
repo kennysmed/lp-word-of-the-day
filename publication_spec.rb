@@ -194,7 +194,13 @@ describe 'Word Of The Day Publication' do
       lambda {
         WordOfTheDay.new.fetch_source
       }.should raise_error(PermanentError)
-      
+    end
+    it "should throw a NetworkError if word of the day network errors" do
+      stub_request(:get, WordOfTheDay::CONTENT_URL).to_timeout
+
+      lambda {
+        WordOfTheDay.new.fetch_source
+        }.should raise_error(NetworkError)  
     end
     
     it "should throw a ParseError if the scraper can't find the description" do

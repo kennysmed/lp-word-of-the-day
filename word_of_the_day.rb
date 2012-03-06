@@ -44,6 +44,8 @@ class WordOfTheDay
       doc = Nokogiri.parse(open(CONTENT_URL))
     rescue OpenURI::HTTPError
       raise NetworkError, "Could not read to #{CONTENT_URL}"
+    rescue Timeout::Error
+      raise NetworkError, "Connection to #{CONTENT_URL} timed out"
     end
 
     word = doc.xpath('//item/title').text
