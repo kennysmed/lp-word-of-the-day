@@ -47,7 +47,7 @@ def cronable
   while !success && tries < 3
     tries +=1
     begin
-      RestClient.post("http://staging.bergcloud.com/api/v1/publications/renders", :config => {}, :html => render_html, :developer_key => 'a94d7051b1b93e39451e653179cac8ae', :endpoint => 'http://bergcloud-wordoftheday.herokuapp.com/')
+      RestClient.post("http://beta.bergcloud.com/api/v1/publications/renders", :config => "none", :html => render_html, :developer_key => 'a94d7051b1b93e39451e653179cac8ae', :endpoint => 'http://bergcloud-wordoftheday.herokuapp.com/')
       success = true
     rescue PermanentError => e
       # Parse problem. Not going to go away. Do someting
@@ -56,12 +56,12 @@ def cronable
       # Network error. Do nothing.
     end
   end
-  return result
+  return success
 end
 
 def render_html
-  word, derscription = WordOfTheDay::fetch_source
-  bind_me = BindMe.new(word, derscription)
+  word, description = WordOfTheDay::fetch_source
+  bind_me = BindMe.new(word, description)
   rhtml = ERB.new(File.read('views/word_of_the_day.erb'))
   rhtml.result(bind_me.get_binding)
 end
