@@ -27,8 +27,7 @@ get '/edition/' do
       @word, @definition = WordOfTheDay.fetch_source
       success = true
     rescue Exception => e
-      # Parse problem. Not going to go away. Do someting
-        
+      
       if tries == 3
         etag Digest::MD5.hexdigest("")
         raise NotableError, 'caught a parse error 3 times. Last error message: '+ e.message 
@@ -61,7 +60,8 @@ def cronable
 end
 
 def render_html
-  bind_me = BindMe.new(WordOfTheDay::fetch_source)
+  word, derscription = WordOfTheDay::fetch_source
+  bind_me = BindMe.new(word, derscription)
   rhtml = ERB.new(File.read('views/word_of_the_day.erb'))
   rhtml.result(bind_me.get_binding)
 end
