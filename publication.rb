@@ -47,7 +47,9 @@ def cronable
   while !success && tries < 3
     tries +=1
     begin
-      RestClient.post("http://beta.bergcloud.com/api/v1/publications/renders", :config => "none", :html => render_html, :developer_key => 'a94d7051b1b93e39451e653179cac8ae', :endpoint => 'http://bergcloud-wordoftheday.herokuapp.com/')
+      RestClient.post("http://beta.bergcloud.com/api/v1/publications/renders", :config => {}, :html => render_html, :developer_key => 'a94d7051b1b93e39451e653179cac8ae', :endpoint => 'http://bergcloud-wordoftheday.herokuapp.com/')
+      RestClient.post("http://beta.bergcloud.com/api/v1/publications/renders", :config => {"special_case"=>"true"}, :html => render_html, :developer_key => 'a94d7051b1b93e39451e653179cac8ae', :endpoint => 'http://bergcloud-wordoftheday.herokuapp.com/')
+      
       success = true
     rescue PermanentError => e
       # Parse problem. Not going to go away. Do someting
