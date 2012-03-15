@@ -3,6 +3,7 @@ require 'json'
 require 'rest-client'
 require './word_of_the_day'
 require 'date'
+
 post '/validate_config/' do
   content_type :json
   response = {}
@@ -13,8 +14,8 @@ end
 
 get '/sample/' do
   require './word_of_the_day'
-  @word = WordOfTheDay::SAMPLE_DATA[:word]
-  @definition = WordOfTheDay::SAMPLE_DATA[:definition]
+  @word = WordOfTheDay::SAMPLE_DATA[0]
+  @definition = WordOfTheDay::SAMPLE_DATA[1]
   erb :word_of_the_day
 end
 
@@ -29,51 +30,11 @@ get '/edition/' do
     rescue Exception => e
       
       if tries == 3
-        etag Digest::MD5.hexdigest("")
-        raise NotableError, 'caught a parse error 3 times. Last error message: '+ e.message 
+        etag Digest::MD5.hexdigest(Time.now.getutc.to_s)
+        return 502
       end 
     end
   end
   etag Digest::MD5.hexdigest(@word+Date.ordinal.to_s)
   erb :word_of_the_day
-end
-
-
-def cronable
-
-  success = false
-  tries = 0
-   
-  while !success && tries < 3
-    tries +=1
-    begin
-      RestClient.post("http://beta.bergcloud.com/api/v1/publications/renders", :config => {}, :html => render_html, :developer_key => 'a94d7051b1b93e39451e653179cac8ae', :endpoint => 'http://bergcloud-wordoftheday.herokuapp.com/')
-      RestClient.post("http://beta.bergcloud.com/api/v1/publications/renders", :config => {"special_case"=>"true"}, :html => render_html, :developer_key => 'a94d7051b1b93e39451e653179cac8ae', :endpoint => 'http://bergcloud-wordoftheday.herokuapp.com/')
-      
-      success = true
-    rescue PermanentError => e
-      # Parse problem. Not going to go away. Do someting
-      raise NotableError, 'caught a parse error 3 times. Last error message: '+ e.message if tries == 3
-    rescue NetworkError
-      # Network error. Do nothing.
-    end
-  end
-  return success
-end
-
-def render_html
-  word, description = WordOfTheDay::fetch_source
-  bind_me = BindMe.new(word, description)
-  rhtml = ERB.new(File.read('views/word_of_the_day.erb'))
-  rhtml.result(bind_me.get_binding)
-end
-
-class BindMe
-  def initialize(word, definition)
-    @word=word
-    @definition=definition
-  end
-  def get_binding
-    return binding()
-  end
 end

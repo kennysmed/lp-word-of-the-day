@@ -3,7 +3,7 @@ class WordOfTheDay
   require 'open-uri'
   
   CONTENT_URL = "http://wordsmith.org/awad/rss1.xml"
-  SAMPLE_DATA = {:word => "ubiquitous", :definition => "Being or seeming to be everywhere at the same time."}
+  SAMPLE_DATA = ["ubiquitous", "Being or seeming to be everywhere at the same time."]
 
   def self.fetch_source      
     begin

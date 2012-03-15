@@ -20,8 +20,8 @@ describe 'Word Of The Day Publication' do
       it '#should return a sample for a GET to sample. The sample should contain word of the day test data' do
         get '/sample/'
         last_response.should be_ok
-        last_response.body.scan(WordOfTheDay::SAMPLE_DATA[:word].capitalize).length.should == 1
-        last_response.body.scan(WordOfTheDay::SAMPLE_DATA[:definition]).length.should
+        last_response.body.scan(WordOfTheDay::SAMPLE_DATA[0].capitalize).length.should == 1
+        last_response.body.scan(WordOfTheDay::SAMPLE_DATA[1]).length.should
       end
     end
       
@@ -42,121 +42,44 @@ describe 'Word Of The Day Publication' do
       end
     end
     
-    # Cronable
-    describe 'cronable' do
+    describe 'edition' do
       
-      before (:each) do
-        stub_request(:post, "http://staging.bergcoud.com/api/v1/publications/renders")
-        File.stub!(:exists?).and_return(true)
-        str = IO.read(File.join('spec_assets','word_of_the_day.json'))
-        IO.stub!(:read).and_return(str)
-        @wotd = WordOfTheDay.new
-        WordOfTheDay.stub(:new).and_return(@wotd)
+      it 'should return html for a pull' do
+        word = "test"
+        definition = "something to do with cricket."
+        WordOfTheDay.stub!(:fetch_source).and_return([word, definition])
+        get '/edition/'
+        last_response.should be_ok
+        # should include location/forecast/etc
+        last_response.body.scan(word.capitalize).length.should == 1
+        last_response.body.scan(definition).length.should == 1
       end
-      
-      
-      it '#should make a post to bergcloud if word_changed? == true' do
-        stub_request(:post, "http://staging.bergcoud.com/api/v1/publications/renders")
-        RestClient.should_receive(:post).exactly(1).times
-        @wotd.stub(:word_changed?).and_return(true)
-        cronable.should == true
-      end
-      
-      it '#should do nothing if word_changed? returns false' do
-        @wotd = WordOfTheDay.new()
-        WordOfTheDay.stub(:new).and_return(@wotd)
-        @wotd.stub(:word_changed?).and_return(false)
-        RestClient.should_not_receive(:post)
-        cronable.should == false
-      end
-    
-    
-      it '#should raise a NotableError if forecasts_changed? raises a permament error 3 times' do
-        @wotd = WordOfTheDay.new()
-        WordOfTheDay.stub(:new).and_return(@wotd)
-        @wotd.should_receive(:word_changed?).exactly(3).times.and_raise(PermanentError)
-        RestClient.should_not_receive(:post)
-         lambda {
-            cronable
-          }.should raise_error(NotableError)
-      end
-      
-    end
-    
-    
-    # render_html
-    describe '#render_html' do
-       before (:each) do
-          @wotd = Object.new
-          WordOfTheDay.stub(:new).and_return(@wotd)
-        end
 
-      it '#should return html' do
-        expected_result = "Procedure intended to establish the quality, performance, or reliability of something, esp. before it is taken into widespread use."
-        word = "Test"
-        
-        @wotd.stub(:current_word).and_return(word)
-        @wotd.stub(:current_definition).and_return(expected_result)
-        
-        html = render_html
-        html.include?(expected_result).should == true
-        html.include?(word).should == true
+      # It should throw a 502 after three erroring (with network) calls to fetch_data
+      it 'should retry three times before returning a 502 if there is an upstream error' do
+        WordOfTheDay.stub!(:fetch_source).and_raise(NetworkError)
+        WordOfTheDay.should_receive(:fetch_source).exactly(3).times
+        get '/edition/'
+        last_response.status.should == 502
       end
-    end
-  end
-  
-  
-  describe '#word_of_the_day' do
 
-    describe '#word_changed?' do
-      
-      it '#should return true if the word/definition has changed, and update the word/definition' do
-        s = IO.read('spec_assets/stub_data.xml')
-        stub_request(:get, "http://wordsmith.org/awad/rss1.xml").
-                 with(:headers => {'Accept'=>'*/*', 'User-Agent'=>'Ruby'}).
-                 to_return(:status => 200, :body => s, :headers => {})
-        
-        old_definition = "sliced bread browned on both sides by exposure to radiant "
-        old_world = "toast"
+      it 'should set an etag that changes every hour' do
+        WordOfTheDay.stub!(:fetch_source).and_return(WordOfTheDay::SAMPLE_DATA)
      
+        get '/edition/'
+        etag_one = last_response.original_headers["ETag"]
         
-        @wotd = WordOfTheDay.new
-        @wotd.set_word(old_world, old_definition)
-              
-        
-        expected_result = "Procedure intended to establish the quality, performance, or reliability of something, esp. before it is taken into widespread use."
-        word = "test"
-        
-        @wotd.stub(:fetch_source).and_return([word, expected_result])
-        
-        @wotd.word_changed?.should == true
-        @wotd.current_word.should == word
-        @wotd.current_definition.should == expected_result
+        WordOfTheDay.stub!(:fetch_source).and_return(["test", "something to do with cricket."])
+        get '/edition/'
+        etag_two = last_response.original_headers["ETag"]
 
-      end
-      
-      it '#should return false if the forecasts have not changed' do
-        old_definition = "sliced bread browned on both sides by exposure to radiant "
-        old_world = "toast" 
-        @wotd = WordOfTheDay.new 
-        @wotd.set_word(old_world, old_definition)
-              
-        
-        expected_result = "Procedure intended to establish the quality, performance, or reliability of something, esp. before it is taken into widespread use."
-        word = "test"
-        
-        @wotd.stub(:fetch_source).and_return([word, expected_result])
-        
-        @wotd.word_changed?.should == true
-        @wotd.current_word.should == word
-        @wotd.current_definition.should == expected_result
-        @wotd.word_changed?.should == false
-        @wotd.current_word.should == word
-        @wotd.current_definition.should == expected_result
+        get '/edition/'
+        etag_three = last_response.original_headers["ETag"]
 
+
+        etag_one.should_not == etag_two
+        etag_two.should == etag_three
       end
-      
-      
     end
   end
   
@@ -169,7 +92,7 @@ describe 'Word Of The Day Publication' do
       with(:headers => {'Accept'=>'*/*', 'User-Agent'=>'Ruby'}).
       to_return(:status => 200, :body => s, :headers => {})
       
-      word, definition = wotd = WordOfTheDay.new.fetch_source
+      word, definition =  WordOfTheDay::fetch_source
       word.should == "junoesque"
       definition.should == "Having a stately bearing and regal beauty; statuesque."
      
@@ -181,7 +104,7 @@ describe 'Word Of The Day Publication' do
       to_return(:status => 500, :body => "", :headers => {})
 
       lambda {
-        WordOfTheDay.new.fetch_source
+        WordOfTheDay::fetch_source
         }.should raise_error(NetworkError)
     end
     
@@ -192,14 +115,14 @@ describe 'Word Of The Day Publication' do
       to_return(:status => 200, :body => s, :headers => {})
 
       lambda {
-        WordOfTheDay.new.fetch_source
+        WordOfTheDay::fetch_source
       }.should raise_error(PermanentError)
     end
     it "should throw a NetworkError if word of the day network errors" do
       stub_request(:get, WordOfTheDay::CONTENT_URL).to_timeout
 
       lambda {
-        WordOfTheDay.new.fetch_source
+        WordOfTheDay::fetch_source
         }.should raise_error(NetworkError)  
     end
     
@@ -210,7 +133,7 @@ describe 'Word Of The Day Publication' do
       to_return(:status => 200, :body => s, :headers => {})
 
       lambda {
-        WordOfTheDay.new.fetch_source
+        WordOfTheDay::fetch_source
       }.should raise_error(PermanentError)
     end
   end
