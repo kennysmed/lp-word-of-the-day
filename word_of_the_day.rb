@@ -27,4 +27,3 @@ class WordOfTheDay
 end
 class PermanentError < StandardError; end
 class NetworkError < StandardError; end
-class NotableError < StandardError; end

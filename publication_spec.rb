@@ -151,7 +151,6 @@ describe 'Word Of The Day Publication' do
         json = JSON.parse(last_response.body)
         json["name"].should_not == nil
         json["description"].should_not == nil
-        json["content_type"].should == 'push'
       end
     end
     describe '#get config_options.json' do
