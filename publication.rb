@@ -35,6 +35,6 @@ get '/edition/' do
       end 
     end
   end
-  etag Digest::MD5.hexdigest(@word+@definition)
+ # etag Digest::MD5.hexdigest(@word+@definition)
   erb :word_of_the_day
 end
