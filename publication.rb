@@ -19,9 +19,16 @@ get '/sample/' do
   erb :word_of_the_day
 end
 
+
+
 get '/edition/' do
   success = false
   tries = 0
+  
+  if (Time.now.saturday? || Time.now.sunday?)
+    return
+  end
+  
   while !success && tries < 3
     tries +=1
     begin
