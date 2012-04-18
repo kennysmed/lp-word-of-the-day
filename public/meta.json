@@ -1,5 +1,7 @@
 {
   "name":"Word of the Day",
   "description":"wordsmith.org help you to increase your vocabulary with one new word every day.",
-  "delivered_every":"day"
+  "delivered_every":"day",
+  "config":{"fields": [
+  ]}
   }
