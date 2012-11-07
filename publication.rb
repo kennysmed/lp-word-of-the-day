@@ -26,6 +26,7 @@ get '/edition/' do
   tries = 0
   
   if (Time.now.saturday? || Time.now.sunday?)
+    etag Digest::MD5.hexdigest('saturday/sunday')
     return
   end
   
@@ -35,7 +36,6 @@ get '/edition/' do
       @word, @definition = WordOfTheDay.fetch_source
       success = true
     rescue Exception => e
-      
       if tries == 3
         etag Digest::MD5.hexdigest(Time.now.getutc.to_s)
         return 502
