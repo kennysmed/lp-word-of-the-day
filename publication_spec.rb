@@ -153,13 +153,7 @@ describe 'Word Of The Day Publication' do
         json["description"].should_not == nil
       end
     end
-    describe '#get config_options.json' do
-      it 'should return json from config_options.json' do
-        get '/config_options.json'
-        last_response["Content-Type"].should == "application/json;charset=utf-8"
-        json = JSON.parse(last_response.body)
-      end
-    end
+
     describe '#get icon' do
       it 'should return a png for /icon' do
         get '/icon.png'
